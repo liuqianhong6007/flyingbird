@@ -1,0 +1,13 @@
+services:
+  fbclient:
+    image: fbclient:latest
+    container_name: test
+    platform: linux/amd64
+    ports:
+      - "3000:3000"
+    environment:
+      PUID: "1000"
+      PGID: "1000"
+      TZ: "Asia/Singapore"
+    shm_size: "1gb"
+    restart: unless-stopped
