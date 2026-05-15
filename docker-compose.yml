@@ -1,14 +1,9 @@
 services:
   fbclient:
-    image: fbclient:latest
-    container_name: fbclient
+    image: fbclient:light
+    container_name: fbclient-light
     platform: linux/amd64
     ports:
-      - "3000:3000"
-      - "3001:3001"
-    environment:
-      PUID: "1000"
-      PGID: "1000"
-      TZ: "Asia/Shanghai"
+      - "5900:5900"
     shm_size: "1gb"
     restart: unless-stopped

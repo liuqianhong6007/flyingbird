@@ -1,18 +1,35 @@
-FROM lscr.io/linuxserver/webtop:ubuntu-xfce
+FROM ubuntu:24.04
 
-WORKDIR /tmp/fbclient
+ENV DEBIAN_FRONTEND=noninteractive \
+    LANG=zh_CN.UTF-8 \
+    LC_ALL=zh_CN.UTF-8
 
-RUN apt update && apt install -y \
-    libsecret-1-0 \
-    libayatana-appindicator3-1 \
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    dbus-x11 \
+    fontconfig \
+    fonts-dejavu \
+    fonts-wqy-microhei \
     libwebkit2gtk-4.1-0 \
-    && apt clean \
+    locales \
+    openbox \
+    x11vnc \
+    xvfb \
+    && locale-gen zh_CN.UTF-8 \
     && rm -rf /var/lib/apt/lists/*
 
-COPY fbclient_1.36.17_linux_universal_amd64.tar.gz .
+WORKDIR /data
 
-RUN tar -xzf fbclient_1.36.17_linux_universal_amd64.tar.gz \
-    && mkdir -p /config/Desktop/flyingbird \
-    && cp -rf bundle/* /config/Desktop/flyingbird/ \
-    && chmod +x /config/Desktop/flyingbird/fbclient \
-    && rm -rf /tmp/fbclient
+COPY start.sh /start.sh
+RUN chmod +x /start.sh
+
+COPY FlyingBird-3.0.3-linux-amd64.deb .
+RUN apt-get update && apt-get install -y --no-install-recommends ./FlyingBird-3.0.3-linux-amd64.deb \
+    && rm ./FlyingBird-3.0.3-linux-amd64.deb \
+    && rm -rf /var/lib/apt/lists/*
+
+EXPOSE 5900
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+    CMD pgrep -x x11vnc && pgrep -x Xvfb || exit 1
+
+CMD ["/start.sh"]
